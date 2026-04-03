@@ -2,8 +2,16 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Brief Match - BETA 2.4 Restoration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Imprevisti</title>
+    <meta name="apple-mobile-web-app-title" content="Imprevisti">
+    <meta name="application-name" content="Imprevisti">
+    
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         :root {
             --card-width: 57mm;
@@ -24,6 +32,9 @@
             background-color: #f3f0f9;
             font-family: 'Inter', -apple-system, sans-serif;
             overflow: hidden;
+            /* Impedisce il rimbalzo della pagina su iOS */
+            position: fixed;
+            width: 100%;
         }
 
         .deck-wrapper {
@@ -34,6 +45,7 @@
             perspective: 1200px;
         }
 
+        /* --- MAZZO SOTTOSTANTE BORDERLESS --- */
         .deck-shadow {
             position: absolute;
             width: 100%;
@@ -41,10 +53,27 @@
             background-color: var(--main-lilla);
             border-radius: var(--card-radius);
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            z-index: 1;
+            border: none; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
-        .shadow-1 { transform: translate(6px, 6px) rotate(2deg); }
-        .shadow-2 { transform: translate(-4px, 4px) rotate(-1.5deg); }
+
+        .deck-shadow::after {
+            content: "";
+            position: absolute;
+            width: 70%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 126.9 125.7'%3E%3Cpath fill='%23cba6f7' d='M63 41 89 0 79 47l48-5-43 22 34 34-44-20-5 48-12-47-40 26 28-38L0 51l48-2L32 4z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            pointer-events: none;
+        }
+
+        .shadow-1 { transform: translate(6px, 6px) rotate(2deg); z-index: 1; }
+        .shadow-2 { transform: translate(-4px, 4px) rotate(-1.5deg); z-index: 2; }
 
         .card-container {
             position: relative;
@@ -72,10 +101,12 @@
             overflow: hidden;
         }
 
+        /* --- RETRO --- */
         .card-back {
             background-color: var(--main-lilla);
             justify-content: center;
             align-items: center;
+            border: none; 
         }
 
         .stella-bg {
@@ -84,10 +115,12 @@
             pointer-events: none;
         }
 
+        /* --- FRONTE --- */
         .card-front {
             background-color: var(--cream-front);
             color: #2d3436;
             transform: rotateY(180deg);
+            border: none; 
         }
 
         .section {
@@ -100,6 +133,7 @@
             text-align: center;
         }
 
+        /* --- BADGE BETA 2.4 --- */
         .label {
             font-size: 0.68rem;
             font-weight: 800;
@@ -112,7 +146,12 @@
             border-radius: 20px;
         }
 
-        .text { font-size: 0.95rem; font-weight: 500; line-height: 1.4; color: #2d3436; }
+        .text { 
+            font-size: 0.95rem; 
+            font-weight: 500; 
+            line-height: 1.4; 
+            color: #2d3436; 
+        }
 
         .divider {
             height: 2pt;
@@ -150,7 +189,9 @@
                 <span class="label">Cliente</span>
                 <div class="text" id="textClienti">...</div>
             </div>
+            
             <div class="divider"></div>
+            
             <div class="section">
                 <span class="label">Designer</span>
                 <div class="text" id="textDesigner">...</div>
@@ -163,19 +204,19 @@
 
 <script>
     const imprevistiClienti = [
-        "Chiede un 'piccolo cambio' di venerdì.",
-        "Il cliente sparisce per 3 giorni.",
-        "Feedback: 'Non so, non mi convince'.",
-        "Budget raddoppiato: pesca un premio.",
-        "Ti manda le foto dentro un file Word."
+        "Chiede un 'piccolo cambio' di venerdì pomeriggio.",
+        "Il cliente sparisce per 3 giorni nel nulla.",
+        "Feedback: 'Non so, non mi convince del tutto'.",
+        "Budget raddoppiato: pesca subito un premio.",
+        "Ti manda le foto incollate dentro un file Word."
     ];
 
     const imprevistiDesigner = [
-        "Photoshop crasha prima del salvataggio.",
-        "Ti accorgi di un typo dopo la stampa.",
-        "Il font che ami è a pagamento.",
-        "L'ispirazione svanisce: salta il turno.",
-        "Trovi il pennello perfetto: +1 mossa."
+        "Photoshop crasha proprio prima del salvataggio.",
+        "Ti accorgi di un typo fatale dopo la stampa.",
+        "Il font che ami è diventato a pagamento.",
+        "L'ispirazione svanisce: salta il prossimo turno.",
+        "Trovi il pennello perfetto: guadagni +1 mossa."
     ];
 
     const card = document.getElementById('mainCard');
@@ -185,8 +226,10 @@
 
     card.addEventListener('click', () => {
         if (!card.classList.contains('is-flipped')) {
+            // Pesca casuale
             displayClienti.innerText = imprevistiClienti[Math.floor(Math.random() * imprevistiClienti.length)];
             displayDesigner.innerText = imprevistiDesigner[Math.floor(Math.random() * imprevistiDesigner.length)];
+            
             card.classList.add('is-flipped');
             instruction.innerText = "Clicca per mischiare";
         } else {
@@ -194,6 +237,11 @@
             instruction.innerText = "Clicca per pescare";
         }
     });
+
+    // Impedisce lo scroll accidentale su mobile
+    document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
 </script>
 
 </body>
